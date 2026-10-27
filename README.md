@@ -1,0 +1,59 @@
+# 내시경 리포트 검토 화면 (프로토타입)
+
+AI가 생성한 내시경 리포트 초안을 사람이 확인·수정한 뒤 JSON으로 내보내는
+Human-in-the-loop 검토 화면입니다. 의존성 없는 정적 HTML 한 파일입니다.
+
+## 기능
+
+- 좌우 비교: 왼쪽 전사문 / 오른쪽 구조화된 리포트
+- 전사문 **원문 / 의학용어 후보정** 탭 구분 (원문은 고정폭·회색 배경으로 시각 구분)
+- 긴 전사문 검색 + 일치 구간 하이라이트, 일치 건수 표시
+- 식도·위·십이지장·주요 소견 직접 편집
+- 최초 AI 생성값과 수정값 분리 보관 → 수정된 항목에 `수정됨` 배지, 원본 펼쳐보기
+- 필수값(식도·위·십이지장) 비어 있으면 경고 표시 및 내보내기 차단
+- 검토 결과를 `original / edited / is_modified` 구조의 JSON 파일로 내보내기
+
+## 실행
+
+```bash
+open index.html
+```
+
+또는 로컬 서버:
+
+```bash
+python3 -m http.server 4173
+```
+
+## 배포 (Vercel)
+
+프레임워크 없는 정적 사이트입니다.
+
+1. Vercel에서 이 저장소를 Import
+2. Framework Preset: **Other**
+3. Build Command / Output Directory: 비워 둠 (루트의 `index.html`을 그대로 서빙)
+
+## 데이터
+
+`index.html` 안의 `CASES` 배열이 샘플 2건을 담고 있습니다.
+**모두 가공된 예시 문장이며 실제 환자 기록이 아닙니다.**
+기업 제공 샘플을 받으면 이 배열과 필드 규격을 교체합니다.
+
+내보내기 JSON 형태:
+
+```json
+{
+  "case_id": "EGD-2026-0001",
+  "meta": { "model_version": "...", "prompt_version": "...", "exported_at": "..." },
+  "transcript": { "raw_text": "...", "corrected_text": "..." },
+  "report": {
+    "esophagus": { "original": "...", "edited": "...", "is_modified": false }
+  },
+  "review_status": "completed"
+}
+```
+
+## 아직 구현하지 않은 것
+
+과제의 도전 과제 영역: 이탈 경고, 임시 저장, 근거 문장 하이라이트 연결,
+오디오 재생, 수정 이력/되돌리기, 단축키, Diff 화면, 진행 현황 표시.
